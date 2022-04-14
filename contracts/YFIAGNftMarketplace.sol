@@ -104,7 +104,6 @@ contract YFIAGNftMarketplace is IYFIAGNftMarketplace, ERC721, IERC721Pausable{
     }
 
     function mint(address _to, string memory _uri, uint256 _royalty, bool _isRoot) public override {
-        require(_token == address(0) || _token.isContract(), "Token isn`t a contract address");
         require(_royalty <= maxRoyalties && _royalty >= minRoyalties, "Royalty wrong");
         // require msg.sender is wallet
         require(!_msgSender().isContract(), "Sender == contr address");
@@ -130,8 +129,8 @@ contract YFIAGNftMarketplace is IYFIAGNftMarketplace, ERC721, IERC721Pausable{
 
             tokenAddress[tokenId] = tokenAddress[_rootTokenId];
             royalties[tokenId] = royalties[_rootTokenId];
-            tokenCreators[tokenId] = tokenCreators[_rootTokenId];
-            creatorsTokens[tokenCreators[_rootTokenId]].push(tokenId);
+            tokenCreators[tokenId] = _to;
+            creatorsTokens[_to].push(tokenId);
             tokenId++;
     }
 
@@ -160,11 +159,11 @@ contract YFIAGNftMarketplace is IYFIAGNftMarketplace, ERC721, IERC721Pausable{
             require(prices[_tokenId] == msg.value, "Value isn`t equal to price!");
             payable(ownerOf(_tokenId)).transfer(_price.sub(_creatorRoyalty + _platformFee));
             payable(tokenCreators[_tokenId]).transfer(_creatorRoyalty);
-            owner.transfer(_platformFee);
+            payable(platformFeeAddress).transfer(_platformFee);
         }else {
             require(IERC20(tokenAddress[_tokenId]).balanceOf(msg.sender) >= _price, "Insufficient funds");
             IERC20(tokenAddress[_tokenId]).transferFrom(msg.sender, ownerOf(_tokenId), _price.sub(_creatorRoyalty + _platformFee));
-            IERC20(tokenAddress[_tokenId]).transferFrom(msg.sender, owner, _platformFee);
+            IERC20(tokenAddress[_tokenId]).transferFrom(msg.sender, platformFeeAddress, _platformFee);
             IERC20(tokenAddress[_tokenId]).transferFrom(msg.sender, tokenCreators[_tokenId], _creatorRoyalty);
         }
         
@@ -321,10 +320,5 @@ contract YFIAGNftMarketplace is IYFIAGNftMarketplace, ERC721, IERC721Pausable{
     function subOwners(uint256 _tokenId) public view returns(address[] memory){
         return _subOwners[_tokenId];
     }
-
-    function getAmountEarn(address _user, address _tokenAddress) public view override returns(uint256){
-        return amountEarn[_user][_tokenAddress];
-    }
-
 
 }

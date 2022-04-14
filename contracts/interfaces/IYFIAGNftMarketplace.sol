@@ -21,19 +21,15 @@ interface IYFIAGNftMarketplace {
 
     function getBalance() external view returns(uint256);
 
-    function mint(address _to,address _token, string memory _uri, uint256 _royalty, bool _isRoot) external;
+    function mint(address _to,string memory _uri, uint256 _royalty, bool _isRoot) external;
 
     function mintFragment(address _to,uint256 _rootTokenId) external;
 
-    function setPriceAndSell(uint256 _tokenId, uint256 _price) external;
+    function setPriceAndSell(uint256 _tokenId, uint256 _price, address _token ) external;
 
     function buy(uint256 _tokenId) external payable;
 
     function isForSale(uint256 _tokenId) external view returns(bool);
-
-    function getAmountEarn(address _user, address _tokenAddress) external view returns(uint256);
-
-    function setDefaultAmountEarn(address _user, address _tokenAddress) external;
 
     function setPlatformFeeAddress(address newPlatformFeeAddess) external;
 
